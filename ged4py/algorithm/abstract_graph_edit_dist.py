@@ -1,6 +1,3 @@
-# -*- coding: UTF-8 -*-
-from __future__ import print_function
-
 from scipy.optimize import linear_sum_assignment
 import sys
 import numpy as np
@@ -44,14 +41,13 @@ class AbstractGraphEditDistance(object):
         """
         n = len(self.g1)
         m = len(self.g2)
-        cost_matrix = np.zeros((n+m,n+m))
-        #cost_matrix = [[0 for i in range(n + m)] for j in range(n + m)]
+        cost_matrix = np.zeros((n+m, n+m))
         nodes1 = self.g1.nodes()
         nodes2 = self.g2.nodes()
 
-        for i in range(n):
-            for j in range(m):
-                cost_matrix[i,j] = self.substitute_cost(nodes1[i], nodes2[j])
+        for i, node1 in enumerate(nodes1):
+            for j, node2 in enumerate(nodes2):
+                cost_matrix[i,j] = self.substitute_cost(node1, node2)
 
         for i in range(m):
             for j in range(m):
@@ -64,10 +60,10 @@ class AbstractGraphEditDistance(object):
         self.cost_matrix = cost_matrix
         return cost_matrix
 
-    def insert_cost(self, i, j):
+    def insert_cost(self, i, j, nodes1):
         raise NotImplementedError
 
-    def delete_cost(self, i, j):
+    def delete_cost(self, i, j, nodes2):
         raise NotImplementedError
 
     def substitute_cost(self, nodes1, nodes2):
@@ -75,10 +71,6 @@ class AbstractGraphEditDistance(object):
 
     def print_matrix(self):
         print("cost matrix:")
-        for column in self.create_cost_matrix():
-            for row in column:
-                if row == sys.maxint:
-                    print ("inf\t")
-                else:
-                    print ("%.2f\t" % float(row))
-            print("")
+        cost_mat = self.create_cost_matrix()
+        np.place(cost_mat, cost_mat==sys.maxsize, np.inf)
+        print(cost_mat)
